@@ -1,6 +1,6 @@
 from multiprocessing import Pool
+from numpy.random import randint
 from functools import partial
-from random import randint
 from time import time
 import operator
 
@@ -42,13 +42,17 @@ def do_paralil(array, sort_function, processors_count):
 
 
 times = {}
-for proc in range(1, 9):
-    for arr_size in [500000]:
-        arr = [randint(0, 2000) for i in range(arr_size)]
+max_val = 9999
+for proc in range(1, 17):
+    # for arr_size in [1000000]:
+    for arr_size in [20]:
+        arr = randint(0, max_val, size=arr_size).tolist()
 
         start = time()
-        do_paralil(arr, radix_sort, proc)
+        res = do_paralil(arr, radix_sort, proc)
         end = time()
+
+        print("Result:", res)
 
         delta = end - start
         times[proc] = delta
