@@ -3,11 +3,11 @@ from time import time
 
 from sorts import radix_sort, counting_sort
 
-max_value = 999
+max_value = 99
 times = {}
 for proc in range(1, 17):
     # for arr_size in [20]:
-    for arr_size in [1000000]:
+    for arr_size in [5000000]:
         arr = randint(0, max_value, size=arr_size).tolist()
 
         print('\rsorting..', end='')
