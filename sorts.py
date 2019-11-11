@@ -14,9 +14,22 @@ def do_count(array, d):
     return counts
 
 
-def populate(arg):
-    digit, times = arg
-    return np.full(times, fill_value=digit, dtype=int)
+def populate(target, counts, array, d):
+    # array = list(filter(lambda a: left <= get_digit(a, d) < right, array))
+    # print('array', array)
+
+    res = [0] * counts[target]
+    if len(res) == 0:
+        return np.zeros(0, dtype=int)
+
+    i = 0
+    for a in array:
+        digit = get_digit(a, d)
+        if digit == target:
+            res[i] = a
+            i += 1
+
+    return res
 
 
 def counting_sort(array, d, processors_count):
@@ -28,8 +41,6 @@ def counting_sort(array, d, processors_count):
         sub_arrays = [array[(part_size * i):(part_size * (i + 1))] for i in range(processors_count)]
         if rem > 0:
             sub_arrays[0].extend(array[-rem:])
-
-        # print(processors_count, [len(a) for a in sub_arrays])
 
         all_counts = pool.map(partial(do_count, d=d), sub_arrays)
         for c in all_counts:
@@ -46,10 +57,15 @@ def counting_sort(array, d, processors_count):
         #     counts[i] = counts[i - 1]
         # counts[0] = 0
 
-        # res = [None] * len(array)
-
-        results = pool.map(populate, enumerate(counts))
+        results = pool.map(partial(populate, array=array, counts=counts, d=d), range(10))
         return np.concatenate(results).tolist()
+
+        # res = [0] * len(array)
+        # for a in array:
+        #     index = counts[get_digit(a, d)]
+        #     res[index] = a
+        #     counts[get_digit(a, d)] += 1
+        # return res
 
 
 def radix_sort(array, max_value, processors_count):
