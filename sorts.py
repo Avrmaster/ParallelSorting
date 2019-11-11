@@ -27,7 +27,6 @@ def do_sort(arg, array, d):
     counts[0] = 0
 
     res = [0] * len(array)
-    print('sublen', len(array))
     for a in array:
         digit = get_digit(a, d) - left
         index = counts[digit]
