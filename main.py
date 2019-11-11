@@ -5,15 +5,15 @@ from sorts import radix_sort, counting_sort
 
 max_value = 9
 times = {}
-for proc in range(1, 17):
+for proc in [1, 2, 3, 5, 10]:
     # for arr_size in [20]:
     for arr_size in [30000000]:
         arr = randint(0, max_value, size=arr_size).tolist()
 
-        print('\rsorting..', end='')
+        print('sorting..')
         start = time()
-        res = counting_sort(arr, 0, proc)
-        # res = radix_sort(arr, max_value, proc)
+        # res = counting_sort(arr, 0, proc)
+        res = radix_sort(arr, max_value, proc)
         end = time()
 
         # print('Result', res)

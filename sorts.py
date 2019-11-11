@@ -7,48 +7,50 @@ def get_digit(n, d):
     return (n // (10 ** d)) % 10
 
 
-def do_count(array, d):
-    counts = [0] * 10
+def do_sort(arg, array, d):
+    left, right = arg
+
+    array = list(filter(lambda a: left <= get_digit(a, d) < right, array))
+
+    counts = [0] * (right - left)
     for a in array:
-        counts[get_digit(a, d)] += 1
-    return counts
+        digit = get_digit(a, d)
+        counts[digit - left] += 1
 
+    # accumulating
+    for i in range(1, len(counts)):
+        counts[i] += counts[i - 1]
 
-def populate(arg):
-    digit, times = arg
-    return np.full(times, fill_value=digit, dtype=int)
+    # right shifting
+    for i in reversed(range(1, len(counts))):
+        counts[i] = counts[i - 1]
+    counts[0] = 0
+
+    res = [0] * len(array)
+    print('sublen', len(array))
+    for a in array:
+        digit = get_digit(a, d) - left
+        index = counts[digit]
+        res[index] = a
+        counts[digit] += 1
+
+    if len(res) == 0:
+        return np.zeros(0, dtype=int)
+
+    return res
 
 
 def counting_sort(array, d, processors_count):
-    array_len = len(array)
-    part_size, rem = divmod(array_len, processors_count)
+    part_size, rem = divmod(10, processors_count)
 
-    np_counts: np.ndarray = np.zeros(10, dtype=int)
     with Pool(processes=processors_count) as pool:
-        sub_arrays = [array[(part_size * i):(part_size * (i + 1))] for i in range(processors_count)]
+        digits_distribution = [(part_size * i, (part_size * (i + 1))) for i in range(processors_count)]
+
         if rem > 0:
-            sub_arrays[0].extend(array[-rem:])
+            digits_distribution[-1] = (part_size * (processors_count - 1), 10)
 
-        # print(processors_count, [len(a) for a in sub_arrays])
+        results = pool.map(partial(do_sort, array=array, d=d), digits_distribution)
 
-        all_counts = pool.map(partial(do_count, d=d), sub_arrays)
-        for c in all_counts:
-            np_counts += np.array(c)
-
-        counts: list = np_counts.tolist()
-
-        # # accumulating
-        # for i in range(1, len(counts)):
-        #     counts[i] += counts[i - 1]
-        #
-        # # right shifting
-        # for i in reversed(range(1, len(counts))):
-        #     counts[i] = counts[i - 1]
-        # counts[0] = 0
-
-        # res = [None] * len(array)
-
-        results = pool.map(populate, enumerate(counts))
         return np.concatenate(results).tolist()
 
 
